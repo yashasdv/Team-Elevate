@@ -36,8 +36,9 @@ export default function Progress() {
   }, [user, isDemoUser])
 
   return (
-    <main className="student-page">
+    <div className="student-app-layout">
       <StudentPageHeader user={user} signOut={signOut} active="progress" />
+      <main className="student-page">
       <div className="student-page-content">
         <section className="student-page-intro">
           <p className="eyebrow"><span className="eyebrow-line" /> YOUR GROWTH, IN VIEW</p>
@@ -60,6 +61,7 @@ export default function Progress() {
           <section className="progress-next-step"><span aria-hidden="true">✦</span><div><h2>Keep your momentum</h2><p>One small practice session is a good next step.</p></div><Link to="/student/dashboard">Find a lab <span aria-hidden="true">→</span></Link></section>
         </>}
       </div>
-    </main>
+      </main>
+    </div>
   )
 }

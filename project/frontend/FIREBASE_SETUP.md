@@ -23,6 +23,7 @@ The student dashboard reads:
 - `classes` documents where `studentIds` contains the signed-in student's UID.
 - `assignments` documents where `classIds` contains one of that student's class IDs.
 - `submissions` records filtered by `studentId == uid`; only submissions with a passing/completed status are used to show completed assignments on the dashboard.
+- The Assignments page lists visible assignments from the student's classes and uses that student's submissions to mark each as completed, in progress, or not started.
 - `users/{uid}` and `studentAnalytics/{uid}` for learners in a shared class, to build the class leaderboard. Rules should allow a student to read only classmates' display names and leaderboard fields.
 - `studentAnalytics/{uid}` for the student's weak/strong topics and saved practice time. Live rank and topic analytics can also come from `GET /api/analytics/student/{uid}`.
 

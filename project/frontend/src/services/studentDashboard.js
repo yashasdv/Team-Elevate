@@ -16,6 +16,14 @@ function count(value) {
   return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0
 }
 
+function assignmentIsVisible(data) {
+  const status = String(data.status || '').toLowerCase()
+  return data.active !== false
+    && data.isActive !== false
+    && data.published !== false
+    && !['draft', 'archived', 'closed'].includes(status)
+}
+
 function mapAssignment(snapshot, className) {
   const data = snapshot.data()
   return {
@@ -45,6 +53,39 @@ const demoAssignments = {
     starterCode: 'n = int(input())\n# Add the numbers from 1 to n\n',
     testCases: [{ input: '5', expected: '15' }],
   },
+  'demo-variables-lab': {
+    id: 'demo-variables-lab',
+    title: 'Variables: Keep track of values',
+    description: 'Read two numbers and print their sum.',
+    difficulty: 'Beginner',
+    className: 'CS101 · Intro to coding',
+    examples: [{ input: '2 3', output: '5' }],
+    constraints: ['Use variables to store both values.'],
+    starterCode: 'a, b = map(int, input().split())\n# Add the values and print the result\n',
+    testCases: [{ input: '2 3', expected: '5' }],
+  },
+  'demo-conditions-lab': {
+    id: 'demo-conditions-lab',
+    title: 'Decisions with if statements',
+    description: 'Read a score. Print Pass when the score is at least 50; otherwise print Keep practicing.',
+    difficulty: 'Beginner',
+    className: 'CS101 · Intro to coding',
+    examples: [{ input: '72', output: 'Pass' }],
+    constraints: ['The score is a whole number from 0 to 100.'],
+    starterCode: 'score = int(input())\n# Choose a message using an if statement\n',
+    testCases: [{ input: '72', expected: 'Pass' }],
+  },
+  'demo-nested-loops-lab': {
+    id: 'demo-nested-loops-lab',
+    title: 'Nested loops: Build a pattern',
+    description: 'Read a number n and print n rows of stars. Each row contains n stars.',
+    difficulty: 'Intermediate',
+    className: 'CS101 · Intro to coding',
+    examples: [{ input: '3', output: '***\n***\n***' }],
+    constraints: ['1 ≤ n ≤ 10'],
+    starterCode: 'n = int(input())\n# Use one loop inside another\n',
+    testCases: [{ input: '3', expected: '***\n***\n***' }],
+  },
 }
 
 export async function getStudentAssignment(user, assignmentId, { demo = false } = {}) {
@@ -53,6 +94,115 @@ export async function getStudentAssignment(user, assignmentId, { demo = false } 
   const snapshot = await getDoc(doc(db, 'assignments', assignmentId))
   if (!snapshot.exists()) return null
   return mapAssignment(snapshot, 'Class assignment')
+}
+
+const demoStudentAssignments = [
+  {
+    ...demoAssignments['demo-loops-lab'],
+    classNames: ['CS101 · Intro to coding'],
+    status: 'completed',
+    completedAt: new Date('2026-11-24T12:00:00Z'),
+  },
+  {
+    id: 'demo-variables-lab',
+    title: 'Variables: Keep track of values',
+    description: 'Use variables to store and update a running total.',
+    difficulty: 'Beginner',
+    classNames: ['CS101 · Intro to coding'],
+    status: 'completed',
+    completedAt: new Date('2026-11-22T12:00:00Z'),
+  },
+  {
+    id: 'demo-conditions-lab',
+    title: 'Decisions with if statements',
+    description: 'Use simple conditions to choose what your program does next.',
+    difficulty: 'Beginner',
+    classNames: ['CS101 · Intro to coding'],
+    status: 'not-started',
+    starterCode: '# Check the score and choose a message\n',
+    testCases: [{ input: '72', expected: 'Pass' }],
+  },
+  {
+    id: 'demo-nested-loops-lab',
+    title: 'Nested loops: Build a pattern',
+    description: 'Repeat a small pattern using one loop inside another.',
+    difficulty: 'Intermediate',
+    classNames: ['CS101 · Intro to coding'],
+    status: 'not-started',
+    starterCode: '# Use nested loops to draw a pattern\n',
+    testCases: [{ input: '3', expected: '***' }],
+  },
+]
+
+function assignmentCounts(assignments) {
+  const completed = assignments.filter((assignment) => assignment.status === 'completed').length
+  const notStarted = assignments.filter((assignment) => assignment.status === 'not-started').length
+  const inProgress = assignments.filter((assignment) => assignment.status === 'in-progress').length
+  return {
+    total: assignments.length,
+    completed,
+    notCompleted: assignments.length - completed,
+    notStarted,
+    inProgress,
+  }
+}
+
+export async function getStudentAssignments(user, { demo = false } = {}) {
+  if (demo && localPreviewMode) {
+    return { assignments: demoStudentAssignments, counts: assignmentCounts(demoStudentAssignments) }
+  }
+  if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
+
+  const classesSnapshot = await getDocs(query(
+    collection(db, 'classes'),
+    where('studentIds', 'array-contains', user.uid),
+  ))
+  const classDocs = classesSnapshot.docs
+  const assignmentGroups = await Promise.all(classDocs.map(async (classSnapshot) => {
+    const className = classSnapshot.data().name || 'Your class'
+    const assignmentSnapshot = await getDocs(query(
+      collection(db, 'assignments'),
+      where('classIds', 'array-contains', classSnapshot.id),
+    ))
+    return assignmentSnapshot.docs
+      .filter((assignmentSnapshot) => assignmentIsVisible(assignmentSnapshot.data()))
+      .map((assignmentSnapshot) => ({ ...mapAssignment(assignmentSnapshot, className), classNames: [className] }))
+  }))
+
+  const uniqueAssignments = new Map()
+  assignmentGroups.flat().forEach((assignment) => {
+    const previous = uniqueAssignments.get(assignment.id)
+    if (previous) previous.classNames.push(...assignment.classNames)
+    else uniqueAssignments.set(assignment.id, assignment)
+  })
+
+  const submissions = await getDocs(query(
+    collection(db, 'submissions'),
+    where('studentId', '==', user.uid),
+  ))
+  const studentStatus = new Map()
+  submissions.docs.forEach((submission) => {
+    const data = submission.data()
+    if (!data.assignmentId) return
+    const status = String(data.status || '').toLowerCase()
+    const previous = studentStatus.get(data.assignmentId)
+    if (['pass', 'passed', 'completed'].includes(status)) {
+      studentStatus.set(data.assignmentId, { status: 'completed', completedAt: data.submittedAt || data.createdAt || null })
+    } else if (previous?.status !== 'completed') {
+      studentStatus.set(data.assignmentId, { status: 'in-progress', completedAt: null })
+    }
+  })
+
+  const assignments = [...uniqueAssignments.values()].map((assignment) => ({
+    ...assignment,
+    status: studentStatus.get(assignment.id)?.status || 'not-started',
+    completedAt: studentStatus.get(assignment.id)?.completedAt || null,
+  }))
+  assignments.sort((first, second) => {
+    const statusOrder = { 'not-started': 0, 'in-progress': 1, completed: 2 }
+    return statusOrder[first.status] - statusOrder[second.status] || first.title.localeCompare(second.title)
+  })
+  return { assignments, counts: assignmentCounts(assignments) }
 }
 
 const demoDashboardData = {

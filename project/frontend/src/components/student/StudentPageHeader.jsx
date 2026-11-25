@@ -15,6 +15,7 @@ export default function StudentPageHeader({ user, signOut, active }) {
       <p className="student-sidebar-label">YOUR SPACE</p>
       <nav className="student-page-nav" aria-label="Student pages">
         <Link className={active === 'dashboard' ? 'active' : ''} to="/student/dashboard"><span aria-hidden="true">⌂</span>Dashboard</Link>
+        <Link className={active === 'assignments' ? 'active' : ''} to="/student/assignments"><span aria-hidden="true">▤</span>Assignments</Link>
         <Link className={active === 'leaderboard' ? 'active' : ''} to="/student/leaderboard"><span aria-hidden="true">♕</span>Leaderboard</Link>
         <Link className={active === 'progress' ? 'active' : ''} to="/student/progress"><span aria-hidden="true">◷</span>Progress</Link>
       </nav>

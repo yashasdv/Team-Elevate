@@ -34,8 +34,9 @@ export default function Leaderboard() {
   const myRank = selectedClass?.students.find((student) => student.uid === user?.uid)?.rank
 
   return (
-    <main className="student-page">
+    <div className="student-app-layout">
       <StudentPageHeader user={user} signOut={signOut} active="leaderboard" />
+      <main className="student-page">
       <div className="student-page-content">
         <section className="student-page-intro">
           <p className="eyebrow"><span className="eyebrow-line" /> LEARN TOGETHER</p>
@@ -66,6 +67,7 @@ export default function Leaderboard() {
           </section>
         </>}
       </div>
-    </main>
+      </main>
+    </div>
   )
 }
