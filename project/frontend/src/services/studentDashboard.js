@@ -220,24 +220,6 @@ const demoDashboardData = {
     { name: 'Variables', detail: 'You use values with confidence.' },
   ],
   classes: [{ id: 'demo-cs101', name: 'CS101 · Intro to coding' }],
-  completedAssignments: [
-    {
-      id: 'demo-loops-lab',
-      title: 'Loops: Count with confidence',
-      description: 'Practice repeating steps and tracking a running total.',
-      difficulty: 'Beginner',
-      completedAt: new Date('2026-11-24T12:00:00Z'),
-      classNames: ['CS101 · Intro to coding'],
-    },
-    {
-      id: 'demo-variables-lab',
-      title: 'Variables: Keep track of values',
-      description: 'Use variables to store and update a running total.',
-      difficulty: 'Beginner',
-      completedAt: new Date('2026-11-22T12:00:00Z'),
-      classNames: ['CS101 · Intro to coding'],
-    },
-  ],
 }
 
 export async function getStudentDashboardData(user, { demo = false } = {}) {
@@ -252,36 +234,6 @@ export async function getStudentDashboardData(user, { demo = false } = {}) {
   const analytics = analyticsSnapshot.exists() ? analyticsSnapshot.data() : {}
   const streak = count(analytics.streak)
   const classDocs = classesSnapshot.docs
-  let completedAssignments = []
-  let completedAssignmentsUnavailable = false
-  try {
-    const submissions = await getDocs(query(
-      collection(db, 'submissions'),
-      where('studentId', '==', user.uid),
-    ))
-    const passedAssignments = new Map()
-    submissions.docs.forEach((submission) => {
-      const data = submission.data()
-      if (!['pass', 'passed', 'completed'].includes(String(data.status || '').toLowerCase()) || !data.assignmentId) return
-      const previous = passedAssignments.get(data.assignmentId)
-      const submittedAt = data.submittedAt || data.createdAt || null
-      passedAssignments.set(data.assignmentId, previous || submittedAt)
-    })
-
-    completedAssignments = await Promise.all([...passedAssignments.entries()].map(async ([assignmentId, completedAt]) => {
-      const assignmentSnapshot = await getDoc(doc(db, 'assignments', assignmentId))
-      if (!assignmentSnapshot.exists()) return null
-      const assignment = mapAssignment(assignmentSnapshot, 'Completed lab')
-      const classNames = (assignment.classIds || [])
-        .map((classId) => classDocs.find((classSnapshot) => classSnapshot.id === classId)?.data().name)
-        .filter(Boolean)
-      return { ...assignment, classNames: classNames.length ? classNames : ['Completed lab'], completedAt }
-    }))
-    completedAssignments = completedAssignments.filter(Boolean)
-  } catch (error) {
-    completedAssignmentsUnavailable = true
-  }
-
   const topicList = (value) => Array.isArray(value)
     ? value.map((topic) => typeof topic === 'string'
       ? { name: topic, detail: '' }
@@ -297,8 +249,6 @@ export async function getStudentDashboardData(user, { demo = false } = {}) {
     weakTopics: topicList(analytics.weakTopics),
     strongTopics: topicList(analytics.strongTopics),
     classes: classDocs.map((classSnapshot) => ({ id: classSnapshot.id, ...classSnapshot.data() })),
-    completedAssignments,
-    completedAssignmentsUnavailable,
   }
 }
 
