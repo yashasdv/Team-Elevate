@@ -38,6 +38,6 @@ This document records the fields used by the checked-in backend and the proposed
 
 ## Security rules contract
 
-`firestore.rules` denies client writes to `users` and `classes`; the checked-in backend uses Firebase Admin SDK for profile and membership changes. Teacher-created assignments, notes, problems, and mock tests require an owned `classId`. Student submissions, progress, and live sessions must carry the authenticated student's own UID and a class membership check. Hidden cases belong under `assignments/{assignmentId}/private_test_cases/{testCaseId}` and are teacher-only. `studentAnalytics` and `leaderboard` are server-write-only.
+`firestore.rules` denies client writes to `users` and `classes`; the checked-in backend uses Firebase Admin SDK for profile and membership changes. Teacher-created assignments, notes, problems, and mock tests require an owned `classId`. Student submissions, progress, and live sessions must carry the authenticated student's own UID and a class membership check. Hidden cases belong under `assignments/{assignmentId}/private_test_cases/{testCaseId}` and are teacher-only. Assignment and hidden-case writes can be batched together because the nested write checks the post-batch assignment with `getAfter()`. `studentAnalytics`, `leaderboard`, and verified submissions are server-write-only.
 
 These gaps are explicit so the browser implementation does not rely on fields that the current project does not provide.

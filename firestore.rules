@@ -112,7 +112,21 @@ service cloud.firestore {
         allow get, list: if isTeacherOfClass(
           get(/databases/$(database)/documents/assignments/$(assignmentId)).data.classId
         );
-        allow create, update, delete: if isTeacherOfClass(
+        allow create, update: if isTeacherOfClass(
+          getAfter(/databases/$(database)/documents/assignments/$(assignmentId)).data.classId
+        )
+          && request.resource.data.keys().hasAll([
+            'problemId', 'input', 'expectedOutput', 'createdAt'
+          ])
+          && request.resource.data.keys().hasOnly([
+            'problemId', 'input', 'expectedOutput', 'createdAt'
+          ])
+          && request.resource.data.problemId is string
+          && request.resource.data.input is string
+          && request.resource.data.input.size() <= 10000
+          && request.resource.data.expectedOutput is string
+          && request.resource.data.expectedOutput.size() <= 10000;
+        allow delete: if isTeacherOfClass(
           get(/databases/$(database)/documents/assignments/$(assignmentId)).data.classId
         );
       }
@@ -241,7 +255,18 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'assignmentId', 'classId', 'title', 'description', 'starterCode',
           'topicTags', 'difficulty', 'publicTestCases', 'createdAt', 'updatedAt'
-        ]);
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 10000
+        && request.resource.data.starterCode is string
+        && request.resource.data.starterCode.size() <= 50000
+        && request.resource.data.topicTags is list
+        && request.resource.data.topicTags.size() <= 10
+        && (!('publicTestCases' in request.resource.data)
+            || (request.resource.data.publicTestCases is list
+                && request.resource.data.publicTestCases.size() <= 30));
       allow delete: if isTeacherForRecord(resource.data);
     }
 
