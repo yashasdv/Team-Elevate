@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import AiPanel from '../../components/ai/AiPanel.jsx'
 import Editor from '../../components/ide/Editor.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { apiRequest } from '../../services/apiClient.js'
@@ -119,6 +120,7 @@ export default function ProblemView() {
               {isDemoUser && <span className="ide-demo-note">Preview mode · sign in to run code</span>}
               <button className="ide-run-button" disabled={running} onClick={runCode} type="button"><span aria-hidden="true">{running ? '◌' : '▶'}</span>{running ? 'Running code…' : 'Run code'}</button>
             </div>
+            <AiPanel user={user} code={code} assignment={assignment} errorOutput={runResult?.stderr || runError} demo={isDemoUser} />
           </div>
         </div>
       </div>
