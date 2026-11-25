@@ -1,0 +1,378 @@
+.class-management {
+  --cm-ink: #17211f;
+  --cm-muted: #66736f;
+  --cm-line: #e2e9e5;
+  --cm-paper: #ffffff;
+  --cm-canvas: #f5f8f6;
+  --cm-green: #18795d;
+  --cm-green-dark: #126148;
+  --cm-green-soft: #e8f4ee;
+  --cm-red: #a23a37;
+  width: min(100% - 40px, 1040px);
+  margin: 0 auto;
+  padding: 44px 0 64px;
+  color: var(--cm-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.class-management *,
+.class-management *::before,
+.class-management *::after {
+  box-sizing: border-box;
+}
+
+.class-management__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.class-management__eyebrow,
+.class-management__code-label {
+  margin: 0 0 8px;
+  color: var(--cm-green);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+
+.class-management h1,
+.class-management h2,
+.class-management p {
+  margin-top: 0;
+}
+
+.class-management h1 {
+  margin-bottom: 8px;
+  font-size: clamp(28px, 4vw, 38px);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.class-management__intro {
+  margin-bottom: 0;
+  color: var(--cm-muted);
+  font-size: 15px;
+}
+
+.class-management__panel {
+  margin-top: 18px;
+  padding: 26px;
+  border: 1px solid var(--cm-line);
+  border-radius: 18px;
+  background: var(--cm-paper);
+  box-shadow: 0 10px 30px rgb(27 61 48 / 4%);
+}
+
+.class-management__panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.class-management__panel-heading h2 {
+  margin-bottom: 0;
+  font-size: 20px;
+  letter-spacing: -0.025em;
+}
+
+.class-management__step {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--cm-green-soft);
+  color: var(--cm-green);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.class-management__form label,
+.class-management__select-label {
+  display: block;
+  margin-bottom: 9px;
+  color: #33413c;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.class-management__form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.class-management input,
+.class-management select {
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid #ccd8d1;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--cm-ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.class-management input {
+  flex: 1;
+  padding: 0 13px;
+}
+
+.class-management select {
+  width: min(100%, 420px);
+  padding: 0 38px 0 13px;
+}
+
+.class-management input::placeholder {
+  color: #91a09a;
+}
+
+.class-management input:focus,
+.class-management select:focus,
+.class-management button:focus-visible {
+  outline: 3px solid rgb(24 121 93 / 22%);
+  outline-offset: 2px;
+  border-color: var(--cm-green);
+}
+
+.class-management button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 17px;
+  background: var(--cm-green);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.class-management button:hover:not(:disabled) {
+  background: var(--cm-green-dark);
+}
+
+.class-management button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.class-management button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.class-management__code-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+  padding: 17px 18px;
+  border: 1px solid #c9e5d8;
+  border-radius: 12px;
+  background: #f0f8f3;
+}
+
+.class-management__code-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10px;
+}
+
+.class-management__code {
+  display: block;
+  color: #135e48;
+  font-size: 25px;
+  letter-spacing: 0.09em;
+}
+
+.class-management .class-management__secondary-button {
+  flex: 0 0 auto;
+  border: 1px solid #c1d9cb;
+  background: white;
+  color: #17664e;
+}
+
+.class-management .class-management__secondary-button:hover:not(:disabled) {
+  background: #e5f2e9;
+}
+
+.class-management__empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 17px;
+  border-radius: 12px;
+  background: var(--cm-canvas);
+  color: var(--cm-muted);
+  font-size: 14px;
+}
+
+.class-management__empty span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--cm-green-soft);
+  color: var(--cm-green);
+  font-weight: 800;
+}
+
+.class-management__empty p {
+  margin: 0;
+}
+
+.class-management__table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+.class-management__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.class-management__table th {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--cm-line);
+  color: var(--cm-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.class-management__table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf1ee;
+  color: #52605b;
+  vertical-align: middle;
+}
+
+.class-management__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.class-management__student-name,
+.class-management__student-id {
+  display: block;
+}
+
+.class-management__student-name {
+  color: var(--cm-ink);
+  font-weight: 700;
+}
+
+.class-management__student-id {
+  margin-top: 3px;
+  color: #87948f;
+  font-size: 10px;
+}
+
+.class-management__actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.class-management .class-management__approve,
+.class-management .class-management__reject {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.class-management .class-management__reject {
+  margin-left: 6px;
+  border: 1px solid #e7d2d0;
+  background: #fff;
+  color: var(--cm-red);
+}
+
+.class-management .class-management__reject:hover:not(:disabled) {
+  background: #fff5f4;
+}
+
+.class-management__message {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.class-management__message--error {
+  border-color: #efd0ce;
+  background: #fff5f4;
+  color: #8f302d;
+}
+
+.class-management__message--success {
+  border-color: #cce5d6;
+  background: #f0f8f3;
+  color: #17664e;
+}
+
+.class-management__message--info {
+  border-color: #d7e4ec;
+  background: #f3f8fb;
+  color: #3d6072;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 680px) {
+  .class-management {
+    width: min(100% - 28px, 1040px);
+    padding-top: 28px;
+  }
+
+  .class-management__panel {
+    padding: 19px;
+  }
+
+  .class-management__form-row {
+    flex-direction: column;
+  }
+
+  .class-management__form-row button {
+    width: 100%;
+  }
+
+  .class-management__table th,
+  .class-management__table td {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .class-management__table th:nth-child(2),
+  .class-management__table td:nth-child(2) {
+    display: none;
+  }
+
+  .class-management__actions {
+    min-width: 156px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .class-management button {
+    transition: none;
+  }
+}
