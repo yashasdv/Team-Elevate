@@ -1,0 +1,42 @@
+[
+  {
+    "id": "sum-of-n",
+    "title": "Sum of N",
+    "difficulty": "Beginner",
+    "topicTags": ["loops", "arithmetic"],
+    "description": "Read an integer n and print the sum of every integer from 1 through n. Assume n is a non-negative integer.",
+    "starterCode": "n = int(input())\n\n# Calculate and print the sum from 1 to n.\n",
+    "testCases": [
+      { "input": "5\n", "expectedOutput": "15", "isHidden": false },
+      { "input": "1\n", "expectedOutput": "1", "isHidden": false },
+      { "input": "0\n", "expectedOutput": "0", "isHidden": true }
+    ]
+  },
+  {
+    "id": "two-sum",
+    "title": "Two Sum",
+    "difficulty": "Beginner",
+    "topicTags": ["arrays", "hash maps"],
+    "description": "Read a line of space-separated integers, then a target integer. Find the two distinct, zero-based positions whose values add to the target. Exactly one pair exists. Print the two positions separated by a space.",
+    "starterCode": "numbers = list(map(int, input().split()))\ntarget = int(input())\n\n# Find the two positions and print them.\n",
+    "testCases": [
+      { "input": "2 7 11 15\n9\n", "expectedOutput": "0 1", "isHidden": false },
+      { "input": "3 2 4\n6\n", "expectedOutput": "1 2", "isHidden": false },
+      { "input": "-1 5 8 2\n7\n", "expectedOutput": "1 3", "isHidden": true }
+    ]
+  },
+  {
+    "id": "valid-parentheses",
+    "title": "Valid Parentheses",
+    "difficulty": "Beginner",
+    "topicTags": ["strings", "stacks"],
+    "description": "Read a string containing only parentheses, square brackets, and curly braces. Print True if every opening bracket is closed by the matching bracket in the correct order; otherwise print False. An empty string is valid.",
+    "starterCode": "text = input()\n\n# Check whether the brackets are balanced and print True or False.\n",
+    "testCases": [
+      { "input": "()[]{}\n", "expectedOutput": "True", "isHidden": false },
+      { "input": "([)]\n", "expectedOutput": "False", "isHidden": false },
+      { "input": "{[]}\n", "expectedOutput": "True", "isHidden": true },
+      { "input": "\n", "expectedOutput": "True", "isHidden": true }
+    ]
+  }
+]
