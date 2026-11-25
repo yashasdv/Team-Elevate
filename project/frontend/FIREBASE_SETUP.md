@@ -18,5 +18,7 @@ The student dashboard reads:
 - `studentAnalytics/{uid}` for streak and daily goal progress.
 - `classes` documents where `studentIds` contains the signed-in student's UID.
 - `assignments` documents where `classIds` contains one of that student's class IDs.
+- `users/{uid}` and `studentAnalytics/{uid}` for learners in a shared class, to build the class leaderboard. Rules should allow a student to read only classmates' display names and leaderboard fields.
+- `studentAnalytics/{uid}` for the student's weak/strong topics and saved practice time. Live rank and topic analytics can also come from `GET /api/analytics/student/{uid}`.
 
-Firestore Security Rules must allow these reads only for the appropriate signed-in student and their classes. Coordinate the rules with the Firebase/Firestore owner; do not open the collections to every signed-in user.
+Firestore Security Rules must allow these reads only for the appropriate signed-in student and their classes. Coordinate the rules with the Firebase/Firestore owner; do not open the collections to every signed-in user. Store `totalPracticeMinutes` (or `practiceMinutes`) in `studentAnalytics/{uid}` for the practice-time card; the backend analytics endpoint does not currently return that field.

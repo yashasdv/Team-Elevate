@@ -4,6 +4,8 @@ import RequireAuth from './components/auth/RequireAuth.jsx'
 import Login from './pages/auth/Login.jsx'
 import ProfileSetup from './pages/auth/ProfileSetup.jsx'
 import Dashboard from './pages/student/Dashboard.jsx'
+import Leaderboard from './pages/student/Leaderboard.jsx'
+import Progress from './pages/student/Progress.jsx'
 import ProblemView from './pages/student/ProblemView.jsx'
 import './pages/auth/auth.css'
 
@@ -27,6 +29,22 @@ function App() {
             element={(
               <RequireAuth>
                 <Dashboard />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/student/leaderboard"
+            element={(
+              <RequireAuth>
+                <Leaderboard />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="/student/progress"
+            element={(
+              <RequireAuth>
+                <Progress />
               </RequireAuth>
             )}
           />

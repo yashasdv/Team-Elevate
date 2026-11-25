@@ -132,6 +132,113 @@ export async function getStudentDashboardData(user, { demo = false } = {}) {
   }
 }
 
+const demoLeaderboard = [{
+  id: 'demo-cs101',
+  name: 'CS101 · Intro to coding',
+  students: [
+    { uid: 'demo-asha', name: 'Asha Rao', totalSolved: 18, streak: 6, rank: 1 },
+    { uid: 'demo-rohan', name: 'Rohan Patel', totalSolved: 15, streak: 5, rank: 2 },
+    { uid: 'local-demo-student', name: 'Demo Student', totalSolved: 12, streak: 4, rank: 3 },
+    { uid: 'demo-mia', name: 'Mia Chen', totalSolved: 9, streak: 2, rank: 4 },
+  ],
+}]
+
+export async function getStudentLeaderboard(user, { demo = false } = {}) {
+  if (demo && import.meta.env.DEV) return demoLeaderboard
+  if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
+
+  const classesSnapshot = await getDocs(query(
+    collection(db, 'classes'),
+    where('studentIds', 'array-contains', user.uid),
+  ))
+
+  return Promise.all(classesSnapshot.docs.map(async (classSnapshot) => {
+    const classData = classSnapshot.data()
+    const studentIds = [...new Set([...(classData.studentIds || []), user.uid])]
+    const students = await Promise.all(studentIds.map(async (uid) => {
+      const [profileSnapshot, analyticsSnapshot] = await Promise.all([
+        getDoc(doc(db, 'users', uid)),
+        getDoc(doc(db, 'studentAnalytics', uid)),
+      ])
+      const profile = profileSnapshot.exists() ? profileSnapshot.data() : {}
+      const analytics = analyticsSnapshot.exists() ? analyticsSnapshot.data() : {}
+      return {
+        uid,
+        name: profile.displayName || (uid === user.uid ? user.displayName : '') || 'Student',
+        totalSolved: count(analytics.totalSolved),
+        streak: count(analytics.streak),
+      }
+    }))
+
+    students.sort((first, second) => second.totalSolved - first.totalSolved
+      || second.streak - first.streak
+      || first.name.localeCompare(second.name))
+    return {
+      id: classSnapshot.id,
+      name: classData.name || 'Your class',
+      students: students.map((student, index) => ({ ...student, rank: index + 1 })),
+    }
+  }))
+}
+
+function topicList(value) {
+  if (!Array.isArray(value)) return []
+  return value.map((topic) => typeof topic === 'string'
+    ? { name: topic, detail: '' }
+    : { name: topic.name || topic.topic || topic.title || 'Topic', detail: topic.detail || topic.note || '' })
+}
+
+export async function getStudentProgress(user, { demo = false } = {}) {
+  if (demo && import.meta.env.DEV) {
+    return {
+      totalSolved: 12,
+      streak: 4,
+      rank: 3,
+      totalPracticeMinutes: 145,
+      weakTopics: [
+        { name: 'Recursion', detail: 'Try tracing one call at a time.' },
+        { name: 'Nested loops', detail: 'Track each loop variable separately.' },
+      ],
+      strongTopics: [
+        { name: 'Loops', detail: 'You’re building a steady rhythm.' },
+        { name: 'Variables', detail: 'You use values with confidence.' },
+      ],
+      source: 'demo',
+    }
+  }
+  if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
+
+  let apiData = null
+  let apiError = null
+  try {
+    apiData = await apiRequest(`/api/analytics/student/${encodeURIComponent(user.uid)}`, user)
+  } catch (error) {
+    apiError = error
+  }
+
+  let storedData = {}
+  try {
+    const analyticsSnapshot = await getDoc(doc(db, 'studentAnalytics', user.uid))
+    if (analyticsSnapshot.exists()) storedData = analyticsSnapshot.data()
+  } catch (error) {
+    if (!apiData) throw error
+  }
+
+  if (!apiData && !Object.keys(storedData).length) {
+    throw apiError || new Error('No progress data is available yet.')
+  }
+
+  return {
+    totalSolved: count(apiData?.totalSolved ?? storedData.totalSolved),
+    streak: count(apiData?.streak ?? storedData.streak),
+    rank: apiData?.rank ?? storedData.rank ?? null,
+    totalPracticeMinutes: count(storedData.totalPracticeMinutes ?? storedData.practiceMinutes ?? storedData.practiceTimeMinutes),
+    weakTopics: topicList(apiData?.weakTopics ?? storedData.weakTopics),
+    strongTopics: topicList(apiData?.strongTopics ?? storedData.strongTopics),
+    source: apiData ? 'api' : 'firestore',
+  }
+}
+
 export function joinClass(user, classCode) {
   return apiRequest('/api/class/join', user, {
     method: 'POST',

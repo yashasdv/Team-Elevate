@@ -5,16 +5,13 @@ import StreakCard from '../../components/student/StreakCard.jsx'
 import DailyGoalCard from '../../components/student/DailyGoalCard.jsx'
 import ClassJoinCard from '../../components/student/ClassJoinCard.jsx'
 import AssignmentCard from '../../components/student/AssignmentCard.jsx'
+import StudentPageHeader from '../../components/student/StudentPageHeader.jsx'
 
 function getGreeting() {
   const hour = new Date().getHours()
   if (hour < 12) return 'Good morning'
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
-}
-
-function initialsFor(name = '') {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join('') || 'S'
 }
 
 function AssignmentLoading() {
@@ -51,17 +48,7 @@ export default function Dashboard() {
 
   return (
     <main className="dashboard-page">
-      <header className="topbar dashboard-topbar">
-        <a className="brand" href="/student/dashboard" aria-label="CodeMentor AI home">
-          <span className="brand-mark" aria-hidden="true">&lt;/&gt;</span>
-          <span>CodeMentor <span className="brand-ai">AI</span></span>
-        </a>
-        <div className="dashboard-account">
-          <span className="dashboard-user-name">{name}</span>
-          <span className="student-avatar" aria-hidden="true">{initialsFor(name)}</span>
-          <button className="button button-link signout-link" onClick={signOut} type="button">Sign out</button>
-        </div>
-      </header>
+      <StudentPageHeader user={user} signOut={signOut} active="dashboard" />
 
       <div className="dashboard-content-shell">
         <section className="dashboard-greeting" aria-labelledby="dashboard-title">
