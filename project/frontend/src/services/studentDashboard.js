@@ -31,7 +31,33 @@ function mapAssignment(snapshot, className) {
     difficulty: data.difficulty || 'Starter',
     dueAt: data.dueAt || data.dueDate || null,
     className,
+    examples: data.examples || [],
+    constraints: data.constraints || [],
+    starterCode: data.starterCode || data.codeTemplate || '# Write your solution here\n',
+    testCases: Array.isArray(data.testCases) ? data.testCases : [],
   }
+}
+
+const demoAssignments = {
+  'demo-loops-lab': {
+    id: 'demo-loops-lab',
+    title: 'Loops: Count with confidence',
+    description: 'Read a number n and print the sum of all numbers from 1 through n.',
+    difficulty: 'Beginner',
+    className: 'CS101 · Intro to coding',
+    examples: [{ input: '5', output: '15' }],
+    constraints: ['1 ≤ n ≤ 10,000'],
+    starterCode: 'n = int(input())\n# Add the numbers from 1 to n\n',
+    testCases: [{ input: '5', expected: '15' }],
+  },
+}
+
+export async function getStudentAssignment(user, assignmentId, { demo = false } = {}) {
+  if (demo && import.meta.env.DEV) return demoAssignments[assignmentId] || null
+  if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
+  const snapshot = await getDoc(doc(db, 'assignments', assignmentId))
+  if (!snapshot.exists()) return null
+  return mapAssignment(snapshot, 'Class assignment')
 }
 
 const demoDashboardData = {

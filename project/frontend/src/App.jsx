@@ -4,7 +4,7 @@ import RequireAuth from './components/auth/RequireAuth.jsx'
 import Login from './pages/auth/Login.jsx'
 import ProfileSetup from './pages/auth/ProfileSetup.jsx'
 import Dashboard from './pages/student/Dashboard.jsx'
-import ProblemPlaceholder from './pages/student/ProblemPlaceholder.jsx'
+import ProblemView from './pages/student/ProblemView.jsx'
 import './pages/auth/auth.css'
 
 function App() {
@@ -34,7 +34,7 @@ function App() {
             path="/student/problem/:assignmentId"
             element={(
               <RequireAuth>
-                <ProblemPlaceholder />
+                <ProblemView />
               </RequireAuth>
             )}
           />
