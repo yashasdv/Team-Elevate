@@ -36,7 +36,7 @@ export default function Leaderboard() {
   return (
     <div className="student-app-layout">
       <StudentPageHeader user={user} signOut={signOut} active="leaderboard" />
-      <main className="student-page">
+      <main className="student-page leaderboard-page">
       <div className="student-page-content">
         <section className="student-page-intro">
           <p className="eyebrow"><span className="eyebrow-line" /> LEARN TOGETHER</p>

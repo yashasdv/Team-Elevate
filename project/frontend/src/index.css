@@ -429,17 +429,30 @@ body:has(.student-app-layout) {
 .dashboard-load-error p { color: inherit; }
 .dashboard-footer { border-color: #e7eaf2; color: #99a1b1; }
 .student-page-content { padding-top: 34px; }
+.leaderboard-page { padding-right: 0; padding-left: 0; }
+.leaderboard-page .student-page-content { width: 100%; }
 .student-page-intro .eyebrow { color: #8377b0; font-family: 'Nunito Sans', sans-serif; font-weight: 800; letter-spacing: .09em; }
 .student-page-title-row h1 { color: #2d3854; font-family: 'Nunito Sans', sans-serif; font-weight: 800; }
 .student-page-title-row > div > p { color: #7b879d; }
-.leaderboard-summary, .leaderboard-card, .progress-stat-card, .progress-topics-card { border-color: #e7eaf3; background-color: #fff; box-shadow: 0 8px 22px rgba(48,64,103,.045); }
+.leaderboard-summary, .leaderboard-card, .progress-stat-card, .progress-topics-card { border-color: #e7eaf3; background: #fff; box-shadow: 0 8px 22px rgba(48,64,103,.045); }
 .leaderboard-summary { background: radial-gradient(ellipse at 90% 10%,rgba(207,196,255,.46),transparent 19rem),linear-gradient(130deg,#fff,#f8f7ff); }
 .leaderboard-summary strong { color: #5546a8; }
 .leaderboard-card-heading h2, .progress-topics-heading h2 { color: #35405a; }
+.leaderboard-card-heading { border-color: #edf0f5; }
+.leaderboard-card-heading > span { color: #8791a5; }
+.leaderboard-table { table-layout: fixed; }
+.leaderboard-table th:first-child, .leaderboard-table td:first-child { width: 84px; padding-left: 14px; }
+.leaderboard-table th:nth-child(2), .leaderboard-table td:nth-child(2) { width: 42%; }
 .leaderboard-table th { color: #8791a5; background: #fafbfe; }
+.leaderboard-table th { background: #fafbfe; }
 .leaderboard-table td { border-color: #edf0f5; color: #58637c; }
+.leaderboard-table tbody tr { background: #fff; }
+.leaderboard-table tbody tr.leaderboard-self { background: #f2f4ff; }
 .leaderboard-student { color: #35405a; }
 .leaderboard-kind-note, .progress-next-step { border-color: #edf0f5; color: #8490a4; }
+.leaderboard-kind-note { background: #fff; }
+.leaderboard-avatar { border-color: #dfe5ff; color: #5969cb; background: #eef1ff; }
+.leaderboard-streak { color: #b47a2f; }
 .progress-stat-card p, .topic-detail, .progress-empty-topics { color: #7d889d; }
 .progress-stat-card strong, .topic-name { color: #36415b; }
 .progress-topics-card { background: #fff; }
