@@ -7,12 +7,14 @@ import Dashboard from './pages/student/Dashboard.jsx'
 import Leaderboard from './pages/student/Leaderboard.jsx'
 import Progress from './pages/student/Progress.jsx'
 import ProblemView from './pages/student/ProblemView.jsx'
+import PwaNotifications from './components/common/PwaNotifications.jsx'
 import './pages/auth/auth.css'
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <PwaNotifications />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
