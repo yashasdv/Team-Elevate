@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: codementor-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://codementor-ai-dev.web.app
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: PISTON_API_URL
+        value: https://emkc.org/api/v2/piston
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CREDENTIALS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
