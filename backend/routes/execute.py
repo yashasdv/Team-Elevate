@@ -12,16 +12,16 @@ router = APIRouter()
 
 
 class TestCase(BaseModel):
-    input: str = ""
-    expected: str | None = None
-    expectedOutput: str | None = None
+    input: str = Field(default="", max_length=10000)
+    expected: str | None = Field(default=None, max_length=10000)
+    expectedOutput: str | None = Field(default=None, max_length=10000)
     isHidden: bool = False
 
 
 class ExecuteRequest(BaseModel):
     code: str = Field(min_length=1, max_length=50000)
     stdin: str = Field(default="", max_length=10000)
-    testCases: list[TestCase] = Field(default_factory=list, max_length=20)
+    testCases: list[TestCase] = Field(default_factory=list, max_length=30)
 
 
 @router.post("/execute", tags=["Code Execution"])

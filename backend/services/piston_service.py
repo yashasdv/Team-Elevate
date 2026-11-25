@@ -9,7 +9,7 @@ import httpx
 
 PISTON_URL = os.getenv("PISTON_API_URL", "https://emkc.org/api/v2/piston").rstrip("/")
 RUN_TIMEOUT_MS = 5000
-MAX_PARALLEL_CASES = 4
+MAX_PARALLEL_CASES = 6
 
 
 class PistonAuthorizationError(RuntimeError):
