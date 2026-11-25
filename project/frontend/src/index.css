@@ -150,6 +150,16 @@ a { color: inherit; text-decoration: none; }
 .ide-run-button:hover:not(:disabled) { filter: brightness(1.12); }
 .ide-run-button:disabled { opacity: .6; cursor: wait; }
 .ide-demo-note { color: #8c96a6; font-size: 10px; }
+.ide-submit-button { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 8px; padding: 0 15px; border: 1px solid rgba(154,121,247,.35); border-radius: 10px; color: #eee8ff; background: linear-gradient(135deg,#7656ce,#5a61ca); box-shadow: 0 7px 22px rgba(105,83,196,.2); font-size: 11px; font-weight: 700; cursor: pointer; }
+.ide-submit-button:hover:not(:disabled) { filter: brightness(1.1); }
+.ide-submit-button:disabled { opacity: .65; cursor: default; }
+.ide-submit-error, .ide-submit-success, .ide-submit-demo-note { margin: 0; padding: 10px 12px; border-radius: 9px; font-size: 10px; line-height: 1.6; }
+.ide-submit-error { border: 1px solid #f0cfd4; color: #9b4b5c; background: #fff6f7; }
+.ide-submit-success { border: 1px solid #d6efdf; color: #277556; background: #effaf3; }
+.ide-submit-demo-note { border: 1px solid #e7e1fa; color: #75679e; background: #f8f6ff; }
+.submission-confetti { position: fixed; z-index: 2000; inset: 0; overflow: hidden; pointer-events: none; }
+.submission-confetti span { position: absolute; top: -18px; left: var(--confetti-x); width: 9px; height: 14px; border-radius: 3px; background: hsl(var(--confetti-hue) 78% 62%); animation: submission-confetti-fall 2.5s cubic-bezier(.18,.62,.32,1) var(--confetti-delay) both; }
+@keyframes submission-confetti-fall { 0% { transform: translate3d(0,-10px,0) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate3d(var(--confetti-drift),105vh,0) rotate(720deg); opacity: .9; } }
 .ide-run-error { margin: 12px 0 0; padding: 10px 11px; border: 1px solid rgba(239,68,68,.24); border-radius: 9px; color: #ffbaba; background: rgba(239,68,68,.08); font-size: 11px; line-height: 1.6; }
 .ide-state-page { display: grid; min-height: 100vh; place-items: center; padding: 24px; color: #cbd3df; }
 .ide-state-card { width: min(500px, 100%); padding: 30px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }

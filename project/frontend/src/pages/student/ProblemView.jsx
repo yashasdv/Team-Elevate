@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import AiPanel from '../../components/ai/AiPanel.jsx'
 import Editor from '../../components/ide/Editor.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { db } from '../../lib/firebase.js'
 import { apiRequest } from '../../services/apiClient.js'
 import { getStudentAssignment } from '../../services/studentDashboard.js'
 
@@ -23,6 +25,10 @@ function TestResults({ results }) {
   )
 }
 
+function ConfettiBurst() {
+  return <div className="submission-confetti" aria-hidden="true">{Array.from({ length: 44 }, (_, index) => <span key={index} style={{ '--confetti-x': `${(index * 37) % 100}%`, '--confetti-delay': `${(index % 11) * 35}ms`, '--confetti-hue': `${(index * 47) % 360}`, '--confetti-drift': `${((index * 29) % 240) - 120}px` }} />)}</div>
+}
+
 export default function ProblemView() {
   const { assignmentId } = useParams()
   const { user, isDemoUser, signOut } = useAuth()
@@ -33,6 +39,13 @@ export default function ProblemView() {
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState('')
   const [runResult, setRunResult] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
+
+  const allTestsPassed = Boolean(runResult?.testResults?.length)
+    && runResult.testResults.every((result) => result.passed === true)
 
   useEffect(() => {
     let cancelled = false
@@ -51,6 +64,8 @@ export default function ProblemView() {
   }, [user, assignmentId, isDemoUser])
 
   async function runCode() {
+    setSubmitted(false)
+    setSubmitError('')
     if (isDemoUser) {
       const sampleOutput = assignment.testCases
         ?.map((testCase) => testCase.expected ?? testCase.expectedOutput ?? testCase.output)
@@ -86,6 +101,31 @@ export default function ProblemView() {
     }
   }
 
+  async function submitSolution() {
+    if (!allTestsPassed || isDemoUser || !user || !db || submitting || submitted) return
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      await addDoc(collection(db, 'submissions'), {
+        studentId: user.uid,
+        assignmentId,
+        code,
+        status: 'passed',
+        testResults: runResult.testResults.map(({ passed }) => ({ passed: Boolean(passed) })),
+        submittedAt: serverTimestamp(),
+      })
+      setSubmitted(true)
+      setShowConfetti(true)
+      window.setTimeout(() => setShowConfetti(false), 2600)
+    } catch (error) {
+      setSubmitError(error.code === 'permission-denied'
+        ? 'Your submission passed, but Firestore is not allowing saves yet. Ask the project owner to check the submissions write rules.'
+        : error.message || 'We could not save your submission. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   if (loading) return <main className="ide-state-page"><p>Opening your lab…</p></main>
   if (loadError) {
     return (
@@ -97,6 +137,7 @@ export default function ProblemView() {
 
   return (
     <main className="ide-page">
+      {showConfetti && <ConfettiBurst />}
       <header className="topbar ide-topbar">
         <Link className="brand" to="/student/dashboard" aria-label="Back to dashboard"><span className="brand-mark" aria-hidden="true">&lt;/&gt;</span><span>CodeMentor <span className="brand-ai">AI</span></span></Link>
         <div className="ide-topbar-actions"><span className="ide-user-name">{user?.displayName || 'Student'}</span><button className="button button-link signout-link" onClick={signOut} type="button">Sign out</button></div>
@@ -128,8 +169,12 @@ export default function ProblemView() {
                 {runResult.stderr && <div className="ide-stream ide-stderr"><span>Error output</span><pre>{runResult.stderr}</pre></div>}
               </> : <p className="ide-output-empty">Your program’s output will appear here.</p>}
             </section>
+            {submitError && <p className="ide-submit-error" role="alert">{submitError}</p>}
+            {submitted && <p className="ide-submit-success" role="status">Solution saved. Great work—you passed every test!</p>}
+            {isDemoUser && <p className="ide-submit-demo-note" role="note">Demo mode shows sample output only. Connect the live runner to validate and submit a solution.</p>}
             <div className="ide-run-row">
               {isDemoUser && <span className="ide-demo-note">Demo run shows the sample output.</span>}
+              {allTestsPassed && !isDemoUser && <button className="ide-submit-button" disabled={submitting || submitted} onClick={submitSolution} type="button"><span aria-hidden="true">{submitted ? '✓' : '✦'}</span>{submitted ? 'Submitted' : submitting ? 'Saving…' : 'Submit solution'}</button>}
               <button className="ide-run-button" disabled={running} onClick={runCode} type="button"><span aria-hidden="true">{running ? '◌' : '▶'}</span>{running ? 'Running code…' : 'Run code'}</button>
             </div>
             <AiPanel user={user} code={code} assignment={assignment} errorOutput={runResult?.stderr || runError} demo={isDemoUser} />
