@@ -134,6 +134,7 @@ a { color: inherit; text-decoration: none; }
 .ide-console-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #c6cedb; font-size: 11px; font-weight: 600; }
 .ide-console-heading > span:last-child { color: #7e899a; font-size: 10px; font-weight: 400; }
 .ide-output-empty { margin: 22px 0 10px; color: #707b8d; font-size: 11px; }
+.ide-demo-output-note { margin: 12px 0 0; color: #c0aaf5; font-size: 10px; line-height: 1.5; }
 .ide-stream { margin-top: 12px; }
 .ide-stream > span { color: #8a96a7; font-size: 10px; }
 .ide-stream pre { max-height: 135px; overflow: auto; margin: 6px 0 0; padding: 10px; border-radius: 8px; color: #d1d9e6; background: rgba(0,0,0,.24); font: 11px/1.6 'DM Mono', monospace; white-space: pre-wrap; overflow-wrap: anywhere; }

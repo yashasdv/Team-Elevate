@@ -52,7 +52,18 @@ export default function ProblemView() {
 
   async function runCode() {
     if (isDemoUser) {
-      setRunError('Code execution needs a signed-in account. You can still explore the editor in this preview.')
+      const sampleOutput = assignment.testCases
+        ?.map((testCase) => testCase.expected ?? testCase.expectedOutput ?? testCase.output)
+        .filter((value) => value !== undefined && value !== null)
+        .join('\n') || '(sample output is not available for this lab)'
+      setRunError('')
+      setRunResult({
+        exitCode: 0,
+        stdout: sampleOutput,
+        stderr: '',
+        testResults: [],
+        demoPreview: true,
+      })
       return
     }
     setRunning(true)
@@ -108,16 +119,17 @@ export default function ProblemView() {
           <div className="ide-work-area">
             <Editor userId={user?.uid || 'student'} problemId={assignmentId} starterCode={assignment.starterCode || '# Write your solution here\n'} value={code} onChange={setCode} />
             <section className="ide-console-card" aria-label="Program output">
-              <div className="ide-console-heading"><span>Output</span><span>{running ? 'Running…' : runResult ? (runResult.exitCode === 0 ? 'Finished' : 'Exited with an error') : 'Ready when you are'}</span></div>
+              <div className="ide-console-heading"><span>Output</span><span>{running ? 'Running…' : runResult?.demoPreview ? 'Sample preview' : runResult ? (runResult.exitCode === 0 ? 'Finished' : 'Exited with an error') : 'Ready when you are'}</span></div>
               {runError && <p className="ide-run-error" role="alert">{runError}</p>}
               {runResult ? <>
+                {runResult.demoPreview && <p className="ide-demo-output-note">Sample output for this lab. Demo mode does not execute or validate your code.</p>}
                 {runResult.testResults && <TestResults results={runResult.testResults} />}
                 <div className="ide-stream"><span>Standard output</span><pre>{runResult.stdout || '(no output)'}</pre></div>
                 {runResult.stderr && <div className="ide-stream ide-stderr"><span>Error output</span><pre>{runResult.stderr}</pre></div>}
               </> : <p className="ide-output-empty">Your program’s output will appear here.</p>}
             </section>
             <div className="ide-run-row">
-              {isDemoUser && <span className="ide-demo-note">Preview mode · sign in to run code</span>}
+              {isDemoUser && <span className="ide-demo-note">Demo run shows the sample output.</span>}
               <button className="ide-run-button" disabled={running} onClick={runCode} type="button"><span aria-hidden="true">{running ? '◌' : '▶'}</span>{running ? 'Running code…' : 'Run code'}</button>
             </div>
             <AiPanel user={user} code={code} assignment={assignment} errorOutput={runResult?.stderr || runError} demo={isDemoUser} />
