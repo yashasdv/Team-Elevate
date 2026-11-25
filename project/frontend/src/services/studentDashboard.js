@@ -9,6 +9,8 @@ import {
 import { db } from '../lib/firebase.js'
 import { apiRequest } from './apiClient.js'
 
+const localPreviewMode = import.meta.env.DEV || import.meta.env.MODE === 'demo'
+
 function count(value) {
   const number = Number(value)
   return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0
@@ -53,7 +55,7 @@ const demoAssignments = {
 }
 
 export async function getStudentAssignment(user, assignmentId, { demo = false } = {}) {
-  if (demo && import.meta.env.DEV) return demoAssignments[assignmentId] || null
+  if (demo && localPreviewMode) return demoAssignments[assignmentId] || null
   if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
   const snapshot = await getDoc(doc(db, 'assignments', assignmentId))
   if (!snapshot.exists()) return null
@@ -88,7 +90,7 @@ const demoDashboardData = {
 }
 
 export async function getStudentDashboardData(user, { demo = false } = {}) {
-  if (demo && import.meta.env.DEV) return demoDashboardData
+  if (demo && localPreviewMode) return demoDashboardData
   if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
 
   const [analyticsSnapshot, classesSnapshot] = await Promise.all([
@@ -144,7 +146,7 @@ const demoLeaderboard = [{
 }]
 
 export async function getStudentLeaderboard(user, { demo = false } = {}) {
-  if (demo && import.meta.env.DEV) return demoLeaderboard
+  if (demo && localPreviewMode) return demoLeaderboard
   if (!db) throw new Error('Firebase is not configured. Add the web app settings to .env.local and restart the app.')
 
   const classesSnapshot = await getDocs(query(
@@ -189,7 +191,7 @@ function topicList(value) {
 }
 
 export async function getStudentProgress(user, { demo = false } = {}) {
-  if (demo && import.meta.env.DEV) {
+  if (demo && localPreviewMode) {
     return {
       totalSolved: 12,
       streak: 4,

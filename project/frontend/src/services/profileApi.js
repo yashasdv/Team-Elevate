@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.DEV
+const API_BASE_URL = (import.meta.env.DEV || import.meta.env.MODE === 'demo')
   ? ''
   : (import.meta.env.VITE_API_BASE_URL || 'https://codementor-api.onrender.com').replace(/\/$/, '')
 

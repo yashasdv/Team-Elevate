@@ -10,7 +10,8 @@ import { auth, firebaseConfigured } from '../lib/firebase.js'
 import { getProfile, saveProfile as saveProfileRequest } from '../services/profileApi.js'
 
 const AuthContext = createContext(null)
-const demoLoginAvailable = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'true'
+const localPreviewMode = import.meta.env.DEV || import.meta.env.MODE === 'demo'
+const demoLoginAvailable = localPreviewMode && import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'true'
 const demoSessionKey = 'codementor-local-dashboard-preview'
 const demoStudent = {
   uid: 'local-demo-student',

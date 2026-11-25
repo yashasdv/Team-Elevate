@@ -11,7 +11,7 @@ For a local dashboard preview without Google sign-in, set `VITE_ENABLE_DEMO_LOGI
 
 ## PWA preview
 
-The web app manifest and service worker are served from `public/`. The service worker is registered only in production builds. To preview the install prompt locally, run `npm run build` followed by `npm run preview`, then open the printed localhost URL in Chrome or Edge. The worker caches the app shell and static same-origin assets; API requests and Firebase data are never cached. A waiting update only activates after the user chooses **Refresh**.
+The web app manifest and service worker are served from `public/`. The service worker is registered only in production builds. For a local PWA preview with the demo login available, make sure `.env.local` contains `VITE_ENABLE_DEMO_LOGIN=true`, run `npm run build:demo-preview`, then `npm run preview`, and open the printed localhost URL in Chrome or Edge. This demo build is for local previews only; use `npm run build` for a normal production build. The worker caches the app shell and static same-origin assets; API requests and Firebase data are never cached. A waiting update only activates after the user chooses **Refresh**.
 
 After sign-in, the frontend checks `GET /api/auth/profile`. New students complete the form, which submits `displayName`, `college`, `year`, and the student role to `POST /api/auth/profile` with the Firebase ID token. The backend verifies the token and controls the saved role.
 
