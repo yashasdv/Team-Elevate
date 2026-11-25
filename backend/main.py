@@ -30,9 +30,12 @@ def _allowed_origins() -> list[str]:
 
 from routes.auth import router as auth_router
 from routes.execute import router as execute_router
+from routes.class_mgmt import router as class_router
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(execute_router, prefix="/api")
+app.include_router(class_router, prefix="/api")
+
 
 app.add_middleware(
     CORSMiddleware,

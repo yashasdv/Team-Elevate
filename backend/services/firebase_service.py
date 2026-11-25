@@ -45,3 +45,10 @@ def verify_id_token(token: str) -> dict[str, Any]:
     """Verify a Firebase ID token and return its decoded claims."""
     app = _firebase_app()
     return auth.verify_id_token(token, app=app, check_revoked=True)
+
+
+def get_firestore():
+    """Return a Firestore client bound to the lazily initialized Firebase app."""
+    from firebase_admin import firestore
+
+    return firestore.client(app=_firebase_app())
