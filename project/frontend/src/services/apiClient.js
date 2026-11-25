@@ -1,5 +1,6 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://codementor-api.onrender.com')
-  .replace(/\/$/, '')
+const API_BASE_URL = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.VITE_API_BASE_URL || 'https://codementor-api.onrender.com').replace(/\/$/, '')
 
 export async function apiRequest(path, user, options = {}) {
   if (!user) throw new Error('Please sign in again to continue.')

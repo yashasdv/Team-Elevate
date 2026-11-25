@@ -1,5 +1,6 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://codementor-api.onrender.com')
-  .replace(/\/$/, '')
+const API_BASE_URL = import.meta.env.DEV
+  ? ''
+  : (import.meta.env.VITE_API_BASE_URL || 'https://codementor-api.onrender.com').replace(/\/$/, '')
 
 async function requestProfile(path, user, options = {}) {
   const token = await user.getIdToken()
