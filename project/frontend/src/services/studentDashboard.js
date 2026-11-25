@@ -16,14 +16,6 @@ function count(value) {
   return Number.isFinite(number) && number > 0 ? Math.floor(number) : 0
 }
 
-function assignmentIsVisible(data) {
-  const status = String(data.status || '').toLowerCase()
-  return data.active !== false
-    && data.isActive !== false
-    && data.published !== false
-    && !['draft', 'archived', 'closed'].includes(status)
-}
-
 function mapAssignment(snapshot, className) {
   const data = snapshot.data()
   return {
@@ -33,6 +25,7 @@ function mapAssignment(snapshot, className) {
     difficulty: data.difficulty || 'Starter',
     dueAt: data.dueAt || data.dueDate || null,
     className,
+    classIds: Array.isArray(data.classIds) ? data.classIds : [],
     examples: data.examples || [],
     constraints: data.constraints || [],
     starterCode: data.starterCode || data.codeTemplate || '# Write your solution here\n',
@@ -68,22 +61,30 @@ const demoDashboardData = {
   dailyGoalProgress: 1,
   dailyGoalTarget: 2,
   totalSolved: 12,
+  weakTopics: [
+    { name: 'Recursion', detail: 'Practice tracing one call at a time.' },
+    { name: 'Nested loops', detail: 'Track each loop variable separately.' },
+  ],
+  strongTopics: [
+    { name: 'Loops', detail: 'You’re building a steady rhythm.' },
+    { name: 'Variables', detail: 'You use values with confidence.' },
+  ],
   classes: [{ id: 'demo-cs101', name: 'CS101 · Intro to coding' }],
-  assignments: [
+  completedAssignments: [
     {
       id: 'demo-loops-lab',
       title: 'Loops: Count with confidence',
       description: 'Practice repeating steps and tracking a running total.',
       difficulty: 'Beginner',
-      dueAt: null,
+      completedAt: new Date('2026-11-24T12:00:00Z'),
       classNames: ['CS101 · Intro to coding'],
     },
     {
-      id: 'demo-conditions-lab',
-      title: 'Decisions with if statements',
-      description: 'Use simple conditions to choose what your program does next.',
-      difficulty: 'Intermediate',
-      dueAt: null,
+      id: 'demo-variables-lab',
+      title: 'Variables: Keep track of values',
+      description: 'Use variables to store and update a running total.',
+      difficulty: 'Beginner',
+      completedAt: new Date('2026-11-22T12:00:00Z'),
       classNames: ['CS101 · Intro to coding'],
     },
   ],
@@ -101,27 +102,41 @@ export async function getStudentDashboardData(user, { demo = false } = {}) {
   const analytics = analyticsSnapshot.exists() ? analyticsSnapshot.data() : {}
   const streak = count(analytics.streak)
   const classDocs = classesSnapshot.docs
-  const assignmentGroups = await Promise.all(classDocs.map(async (classSnapshot) => {
-    const classData = classSnapshot.data()
-    const assignmentSnapshot = await getDocs(query(
-      collection(db, 'assignments'),
-      where('classIds', 'array-contains', classSnapshot.id),
+  let completedAssignments = []
+  let completedAssignmentsUnavailable = false
+  try {
+    const submissions = await getDocs(query(
+      collection(db, 'submissions'),
+      where('studentId', '==', user.uid),
     ))
+    const passedAssignments = new Map()
+    submissions.docs.forEach((submission) => {
+      const data = submission.data()
+      if (!['pass', 'passed', 'completed'].includes(String(data.status || '').toLowerCase()) || !data.assignmentId) return
+      const previous = passedAssignments.get(data.assignmentId)
+      const submittedAt = data.submittedAt || data.createdAt || null
+      passedAssignments.set(data.assignmentId, previous || submittedAt)
+    })
 
-    return assignmentSnapshot.docs
-      .filter((assignment) => assignmentIsVisible(assignment.data()))
-      .map((assignment) => mapAssignment(assignment, classData.name || 'Your class'))
-  }))
+    completedAssignments = await Promise.all([...passedAssignments.entries()].map(async ([assignmentId, completedAt]) => {
+      const assignmentSnapshot = await getDoc(doc(db, 'assignments', assignmentId))
+      if (!assignmentSnapshot.exists()) return null
+      const assignment = mapAssignment(assignmentSnapshot, 'Completed lab')
+      const classNames = (assignment.classIds || [])
+        .map((classId) => classDocs.find((classSnapshot) => classSnapshot.id === classId)?.data().name)
+        .filter(Boolean)
+      return { ...assignment, classNames: classNames.length ? classNames : ['Completed lab'], completedAt }
+    }))
+    completedAssignments = completedAssignments.filter(Boolean)
+  } catch (error) {
+    completedAssignmentsUnavailable = true
+  }
 
-  const uniqueAssignments = new Map()
-  assignmentGroups.flat().forEach((assignment) => {
-    const existing = uniqueAssignments.get(assignment.id)
-    if (existing) {
-      existing.classNames.push(assignment.className)
-    } else {
-      uniqueAssignments.set(assignment.id, { ...assignment, classNames: [assignment.className] })
-    }
-  })
+  const topicList = (value) => Array.isArray(value)
+    ? value.map((topic) => typeof topic === 'string'
+      ? { name: topic, detail: '' }
+      : { name: topic.name || topic.topic || topic.title || 'Topic', detail: topic.detail || topic.note || '' })
+    : []
 
   return {
     streak,
@@ -129,8 +144,11 @@ export async function getStudentDashboardData(user, { demo = false } = {}) {
     dailyGoalProgress: count(analytics.dailyGoalProgress),
     dailyGoalTarget: Math.max(1, count(analytics.dailyGoalTarget) || 2),
     totalSolved: count(analytics.totalSolved),
+    weakTopics: topicList(analytics.weakTopics),
+    strongTopics: topicList(analytics.strongTopics),
     classes: classDocs.map((classSnapshot) => ({ id: classSnapshot.id, ...classSnapshot.data() })),
-    assignments: [...uniqueAssignments.values()],
+    completedAssignments,
+    completedAssignmentsUnavailable,
   }
 }
 

@@ -8,11 +8,11 @@ export default function DailyGoalCard({ progress = 0, target = 2 }) {
       <div className="dashboard-stat-icon goal-icon" aria-hidden="true">✦</div>
       <div className="dashboard-stat-copy">
         <p className="dashboard-stat-label">TODAY’S PRACTICE GOAL</p>
-        <p className="dashboard-stat-value">{safeProgress}<span>of {safeTarget} problems</span></p>
+        <p className="dashboard-stat-value">{safeProgress}<span>of {safeTarget} steps</span></p>
         <div
           className="goal-progress-track"
           role="progressbar"
-          aria-label="Daily problem goal progress"
+          aria-label="Daily learning goal progress"
           aria-valuemin={0}
           aria-valuemax={safeTarget}
           aria-valuenow={Math.min(safeProgress, safeTarget)}
