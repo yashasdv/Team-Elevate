@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth as firebase_auth
 
@@ -13,6 +13,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict[str, Any]:
     """Require and verify a Firebase Bearer ID token."""
@@ -27,11 +28,13 @@ async def get_current_user(
         # Do not expose credential, SDK, or infrastructure details to API clients.
         raise HTTPException(status_code=401, detail="Unable to verify authentication token") from None
 
-    return {
+    user = {
         "uid": claims["uid"],
         "role": claims.get("role"),
         "claims": claims,
     }
+    request.state.current_user = user
+    return user
 
 
 @router.get("/auth/profile", tags=["Auth"])
