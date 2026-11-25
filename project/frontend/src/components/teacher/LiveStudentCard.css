@@ -1,0 +1,225 @@
+.live-student-card {
+  display: flex;
+  min-width: 0;
+  min-height: 270px;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid #e1e9e4;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 9px 26px rgb(28 59 46 / 4%);
+  color: #17211f;
+}
+
+.live-student-card--struggling {
+  border-color: #e8aaa6;
+  animation: live-student-pulse 1.65s ease-in-out infinite;
+}
+
+.live-student-card__topline,
+.live-student-card__identity,
+.live-student-card__footer {
+  display: flex;
+  align-items: center;
+}
+
+.live-student-card__topline {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.live-student-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.live-student-card__status--passed {
+  background: #e8f5ee;
+  color: #17664e;
+}
+
+.live-student-card__status--working {
+  background: #fff5dc;
+  color: #93630f;
+}
+
+.live-student-card__status--struggling {
+  background: #fff0ef;
+  color: #a23a37;
+}
+
+.live-student-card__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.live-student-card__updated {
+  color: #87948f;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.live-student-card__identity {
+  gap: 11px;
+  margin: 20px 0 17px;
+}
+
+.live-student-card__avatar {
+  display: grid;
+  width: 41px;
+  height: 41px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 13px;
+  background: #e9f3ed;
+  color: #18795d;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.live-student-card--struggling .live-student-card__avatar {
+  background: #ffefed;
+  color: #a23a37;
+}
+
+.live-student-card__name-block {
+  min-width: 0;
+}
+
+.live-student-card__name-block h3 {
+  overflow: hidden;
+  margin: 0 0 3px;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-student-card__name-block p {
+  overflow: hidden;
+  margin: 0;
+  color: #83908a;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-student-card__signal {
+  flex: 1;
+  min-height: 76px;
+  padding: 12px;
+  border: 1px solid #edf1ee;
+  border-radius: 11px;
+  background: #f9fbfa;
+}
+
+.live-student-card__signal--error {
+  border-color: #f3d7d5;
+  background: #fff8f7;
+}
+
+.live-student-card__signal--passed {
+  border-color: #d8eee1;
+  background: #f3faf5;
+}
+
+.live-student-card__signal-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #87948f;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+}
+
+.live-student-card__signal--error .live-student-card__signal-label {
+  color: #a23a37;
+}
+
+.live-student-card__signal p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: #44514c;
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.live-student-card__signal--error p {
+  color: #8d3633;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.live-student-card__signal--passed p {
+  color: #17664e;
+  font-weight: 650;
+}
+
+.live-student-card__score {
+  display: block;
+  margin-top: 8px;
+  color: #a23a37;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.live-student-card__footer {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.live-student-card__student-id {
+  overflow: hidden;
+  color: #9aa49f;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-student-card__footer button {
+  min-height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid #c5dcd0;
+  border-radius: 9px;
+  padding: 0 11px;
+  background: #fff;
+  color: #17664e;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.live-student-card__footer button:hover {
+  background: #eef7f1;
+}
+
+.live-student-card__footer button:focus-visible {
+  outline: 3px solid rgb(24 121 93 / 22%);
+  outline-offset: 2px;
+}
+
+@keyframes live-student-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(196 67 59 / 13%), 0 9px 26px rgb(28 59 46 / 4%); }
+  50% { box-shadow: 0 0 0 5px rgb(196 67 59 / 11%), 0 9px 26px rgb(28 59 46 / 4%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-student-card--struggling {
+    animation: none;
+    border-width: 2px;
+  }
+}
