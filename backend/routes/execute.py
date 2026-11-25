@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from routes.auth import get_current_user
-from services.piston_service import run_against_test_cases, run_code
+from services.piston_service import PistonAuthorizationError, run_against_test_cases, run_code
 
 router = APIRouter()
 
@@ -36,5 +36,7 @@ async def execute_code(
             test_cases = [case.model_dump(exclude_none=True) for case in request.testCases]
             test_results = await run_against_test_cases(request.code, test_cases)
         return {**standalone_result, "testResults": test_results}
+    except PistonAuthorizationError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from None
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from None
