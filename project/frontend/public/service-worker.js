@@ -1,4 +1,4 @@
-const CACHE_NAME = 'codementor-shell-v1'
+const CACHE_NAME = 'codementor-shell-v2'
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/pwa/icon-192.svg', '/pwa/icon-512.svg']
 
 self.addEventListener('install', (event) => {
