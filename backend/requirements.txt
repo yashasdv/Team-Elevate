@@ -1,0 +1,27 @@
+# Python dependencies for AI Coding Feedback Platform
+# Install with: pip install -r requirements.txt
+
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Firebase Admin SDK (Firestore + Auth verification)
+firebase-admin==6.5.0
+
+# Google Gemini AI
+google-generativeai==0.5.4
+
+# HTTP client (for Piston API calls)
+httpx==0.27.0
+
+# Environment variable management
+python-dotenv==1.0.1
+
+# Data validation
+pydantic==2.7.1
+
+# CORS support (allow frontend to call backend)
+# Already included in FastAPI
+
+# Date/time utilities
+python-dateutil==2.9.0
