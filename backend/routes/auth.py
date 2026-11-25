@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from firebase_admin import auth as firebase_auth
+from firebase_admin import auth as firebase_auth, exceptions as firebase_exceptions
 from pydantic import BaseModel, Field
 
 from services.firebase_service import get_firestore, verify_id_token
@@ -32,9 +32,12 @@ async def get_current_user(
     except (firebase_auth.InvalidIdTokenError, firebase_auth.ExpiredIdTokenError,
             firebase_auth.RevokedIdTokenError, firebase_auth.UserDisabledError):
         raise HTTPException(status_code=401, detail="Invalid or expired authentication token") from None
+    except firebase_exceptions.FirebaseError:
+        # Firebase infrastructure failures are not evidence of an invalid user token.
+        raise HTTPException(status_code=503, detail="Authentication service temporarily unavailable") from None
     except Exception:
         # Do not expose credential, SDK, or infrastructure details to API clients.
-        raise HTTPException(status_code=401, detail="Unable to verify authentication token") from None
+        raise HTTPException(status_code=503, detail="Authentication service temporarily unavailable") from None
 
     role = claims.get("role")
     if role not in {"student", "teacher"}:
