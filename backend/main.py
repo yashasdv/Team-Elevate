@@ -40,11 +40,13 @@ from routes.auth import router as auth_router
 from routes.execute import router as execute_router
 from routes.class_mgmt import router as class_router
 from routes.ai import router as ai_router
+from routes.analytics import router as analytics_router
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(execute_router, prefix="/api")
 app.include_router(class_router, prefix="/api")
 app.include_router(ai_router, prefix="/api")
+app.include_router(analytics_router, prefix="/api")
 
 
 app.add_middleware(
