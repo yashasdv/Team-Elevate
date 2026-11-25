@@ -3,15 +3,16 @@
 import os
 
 from dotenv import load_dotenv
+
+# Load variables before project modules initialize clients or configuration.
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from limiting import limiter
-
-# Load environment variables from the backend directory or process environment.
-load_dotenv()
 
 app = FastAPI(
     title="AI Coding Feedback Platform",
