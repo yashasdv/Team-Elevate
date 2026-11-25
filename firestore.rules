@@ -1,0 +1,253 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isTeacher() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
+    function classData(classId) {
+      return get(/databases/$(database)/documents/classes/$(classId)).data;
+    }
+
+    function isTeacherOfClass(classId) {
+      return isTeacher() && classData(classId).teacherId == request.auth.uid;
+    }
+
+    function isStudentInClass(classId) {
+      return signedIn()
+        && classData(classId).studentIds is list
+        && classData(classId).studentIds.hasAny([request.auth.uid]);
+    }
+
+    function canReadClass(classId) {
+      return isTeacherOfClass(classId)
+        || isStudentInClass(classId);
+    }
+
+    function isTeacherForRecord(data) {
+      return data.classId is string && isTeacherOfClass(data.classId);
+    }
+
+    function isStudentForRecord(data) {
+      return data.classId is string && isStudentInClass(data.classId);
+    }
+
+    match /users/{userId} {
+      // Teacher clients need roster profiles, so every teacher can read user
+      // documents. Keep this collection limited to roster-safe profile fields;
+      // role/profile writes stay behind the authenticated backend (Admin SDK).
+      allow get: if isSelf(userId) || isTeacher();
+      allow list, create, update, delete: if false;
+    }
+
+    match /classes/{classId} {
+      // Class documents contain membership UID arrays. Only the owner reads
+      // them; students use scoped APIs and class-owned resources instead.
+      allow get, list: if signedIn() && resource.data.teacherId == request.auth.uid;
+
+      // The backend owns class creation and membership changes. This prevents
+      // clients from changing teacherId, studentIds, or pendingStudentIds.
+      allow create, update, delete: if false;
+    }
+
+    match /assignments/{assignmentId} {
+      allow get, list: if isTeacherForRecord(resource.data) || isStudentForRecord(resource.data);
+
+      allow create: if isTeacherForRecord(request.resource.data)
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.classIds is list
+        && request.resource.data.classIds.size() == 1
+        && request.resource.data.classIds[0] == request.resource.data.classId
+        && request.resource.data.keys().hasAll([
+          'classId', 'classIds', 'teacherId', 'createdBy', 'title',
+          'description', 'starterCode', 'publicTestCases', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'classId', 'classIds', 'teacherId', 'createdBy', 'title',
+          'description', 'starterCode', 'publicTestCases', 'dueDate', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 10000
+        && request.resource.data.starterCode is string
+        && request.resource.data.starterCode.size() <= 50000
+        && request.resource.data.publicTestCases is list
+        && request.resource.data.publicTestCases.size() <= 30;
+
+      allow update: if isTeacherForRecord(resource.data)
+        && request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.classId == resource.data.classId
+        && request.resource.data.classIds == resource.data.classIds
+        && request.resource.data.keys().hasAll([
+          'classId', 'classIds', 'teacherId', 'createdBy', 'title',
+          'description', 'starterCode', 'publicTestCases', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'classId', 'classIds', 'teacherId', 'createdBy', 'title',
+          'description', 'starterCode', 'publicTestCases', 'dueDate', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 10000
+        && request.resource.data.starterCode is string
+        && request.resource.data.starterCode.size() <= 50000
+        && request.resource.data.publicTestCases is list
+        && request.resource.data.publicTestCases.size() <= 30;
+      allow delete: if isTeacherForRecord(resource.data);
+
+      match /private_test_cases/{testCaseId} {
+        allow get, list: if isTeacherOfClass(
+          get(/databases/$(database)/documents/assignments/$(assignmentId)).data.classId
+        );
+        allow create, update, delete: if isTeacherOfClass(
+          get(/databases/$(database)/documents/assignments/$(assignmentId)).data.classId
+        );
+      }
+    }
+
+    match /active_sessions/{studentId} {
+      allow get: if isSelf(studentId) || isTeacherForRecord(resource.data);
+      allow list: if isTeacherForRecord(resource.data);
+
+      allow create, update: if isSelf(studentId)
+        && request.resource.data.studentId == request.auth.uid
+        && isStudentInClass(request.resource.data.classId)
+        && request.resource.data.keys().hasAll([
+          'studentId', 'classId', 'status', 'struggleScore', 'code', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'studentId', 'classId', 'assignmentId', 'status', 'struggleScore',
+          'latestError', 'code', 'updatedAt'
+        ])
+        && request.resource.data.status in ['working', 'passed', 'struggling']
+        && request.resource.data.struggleScore is int
+        && request.resource.data.struggleScore >= 0
+        && request.resource.data.struggleScore <= 100
+        && request.resource.data.code is string
+        && request.resource.data.code.size() <= 50000
+        && (!('latestError' in request.resource.data)
+            || (request.resource.data.latestError is string
+                && request.resource.data.latestError.size() <= 2000));
+
+      allow delete: if isSelf(studentId);
+    }
+
+    match /submissions/{submissionId} {
+      allow get, list: if (signedIn() && resource.data.studentId == request.auth.uid)
+        || isTeacherForRecord(resource.data);
+
+      // Only the trusted backend may record results. Client-written `pass`
+      // submissions would let students falsify completion and analytics.
+      allow create, update, delete: if false;
+    }
+
+    match /progress/{progressId} {
+      allow get, list: if (signedIn() && resource.data.studentId == request.auth.uid)
+        || isTeacherForRecord(resource.data);
+
+      allow create, update: if signedIn()
+        && request.resource.data.studentId == request.auth.uid
+        && isStudentInClass(request.resource.data.classId)
+        && request.resource.data.keys().hasAll([
+          'studentId', 'classId', 'assignmentId', 'completedProblemIds', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'studentId', 'classId', 'assignmentId', 'completedProblemIds', 'updatedAt'
+        ])
+        && request.resource.data.completedProblemIds is list
+        && request.resource.data.completedProblemIds.size() <= 500;
+
+      allow delete: if signedIn() && resource.data.studentId == request.auth.uid;
+    }
+
+    match /leaderboard/{entryId} {
+      allow get, list: if canReadClass(resource.data.classId);
+      allow create, update, delete: if false;
+    }
+
+    match /notes/{noteId} {
+      allow get, list: if isTeacherForRecord(resource.data) || isStudentForRecord(resource.data);
+
+      allow create: if isTeacherForRecord(request.resource.data)
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.keys().hasAll([
+          'classId', 'teacherId', 'title', 'bodyMarkdown', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'classId', 'teacherId', 'title', 'bodyMarkdown', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.bodyMarkdown is string
+        && request.resource.data.bodyMarkdown.size() <= 20000;
+
+      allow update: if isTeacherForRecord(resource.data)
+        && request.resource.data.classId == resource.data.classId
+        && request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.keys().hasOnly([
+          'classId', 'teacherId', 'title', 'bodyMarkdown', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.bodyMarkdown is string
+        && request.resource.data.bodyMarkdown.size() <= 20000;
+      allow delete: if isTeacherForRecord(resource.data);
+    }
+
+    match /mock_tests/{mockTestId} {
+      allow get, list: if isTeacherForRecord(resource.data)
+        || (isStudentForRecord(resource.data) && resource.data.published == true);
+
+      allow create: if isTeacherForRecord(request.resource.data)
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.keys().hasAll([
+          'classId', 'teacherId', 'title', 'description', 'problemIds', 'published', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'classId', 'teacherId', 'title', 'description', 'problemIds',
+          'published', 'startsAt', 'durationMinutes', 'createdAt', 'updatedAt'
+        ]);
+
+      allow update: if isTeacherForRecord(resource.data)
+        && request.resource.data.classId == resource.data.classId
+        && request.resource.data.teacherId == resource.data.teacherId
+        && request.resource.data.keys().hasOnly([
+          'classId', 'teacherId', 'title', 'description', 'problemIds',
+          'published', 'startsAt', 'durationMinutes', 'createdAt', 'updatedAt'
+        ]);
+      allow delete: if isTeacherForRecord(resource.data);
+    }
+
+    match /problems/{problemId} {
+      allow get, list: if isTeacherForRecord(resource.data) || isStudentForRecord(resource.data);
+
+      allow create, update: if isTeacherForRecord(request.resource.data)
+        && request.resource.data.keys().hasAll([
+          'assignmentId', 'classId', 'title', 'description', 'starterCode', 'topicTags'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'assignmentId', 'classId', 'title', 'description', 'starterCode',
+          'topicTags', 'difficulty', 'publicTestCases', 'createdAt', 'updatedAt'
+        ]);
+      allow delete: if isTeacherForRecord(resource.data);
+    }
+
+    match /studentAnalytics/{userId} {
+      allow get: if isSelf(userId);
+      allow list, create, update, delete: if false;
+    }
+  }
+}
