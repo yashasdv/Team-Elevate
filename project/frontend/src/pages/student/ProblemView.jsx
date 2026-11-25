@@ -39,6 +39,7 @@ export default function ProblemView() {
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState('')
   const [runResult, setRunResult] = useState(null)
+  const [outputTab, setOutputTab] = useState('tests')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -72,6 +73,7 @@ export default function ProblemView() {
         .filter((value) => value !== undefined && value !== null)
         .join('\n') || '(sample output is not available for this lab)'
       setRunError('')
+      setOutputTab('output')
       setRunResult({
         exitCode: 0,
         stdout: sampleOutput,
@@ -84,6 +86,7 @@ export default function ProblemView() {
     setRunning(true)
     setRunError('')
     setRunResult(null)
+    setOutputTab('tests')
     try {
       const result = await apiRequest('/api/execute', user, {
         method: 'POST',
@@ -94,8 +97,10 @@ export default function ProblemView() {
         }),
       })
       setRunResult(result)
+      setOutputTab(result.testResults?.length ? 'tests' : result.stderr ? 'errors' : 'output')
     } catch (error) {
       setRunError(error.message || 'We could not run your code. Please try again.')
+      setOutputTab('errors')
     } finally {
       setRunning(false)
     }
@@ -164,9 +169,16 @@ export default function ProblemView() {
               {runError && <p className="ide-run-error" role="alert">{runError}</p>}
               {runResult ? <>
                 {runResult.demoPreview && <p className="ide-demo-output-note">Sample output for this lab. Demo mode does not execute or validate your code.</p>}
-                {runResult.testResults && <TestResults results={runResult.testResults} />}
-                <div className="ide-stream"><span>Standard output</span><pre>{runResult.stdout || '(no output)'}</pre></div>
-                {runResult.stderr && <div className="ide-stream ide-stderr"><span>Error output</span><pre>{runResult.stderr}</pre></div>}
+                <div className="ide-console-tabs" role="tablist" aria-label="Run results">
+                  {runResult.testResults?.length > 0 && <button aria-selected={outputTab === 'tests'} className={outputTab === 'tests' ? 'active' : ''} onClick={() => setOutputTab('tests')} role="tab" type="button">Tests <span>{runResult.testResults.filter((item) => item.passed).length}/{runResult.testResults.length}</span></button>}
+                  <button aria-selected={outputTab === 'output'} className={outputTab === 'output' ? 'active' : ''} onClick={() => setOutputTab('output')} role="tab" type="button">Output</button>
+                  <button aria-selected={outputTab === 'errors'} className={outputTab === 'errors' ? 'active' : ''} onClick={() => setOutputTab('errors')} role="tab" type="button">Errors{runResult.stderr ? ' •' : ''}</button>
+                </div>
+                <div className="ide-console-tab-panel" role="tabpanel">
+                  {outputTab === 'tests' && <TestResults results={runResult.testResults} />}
+                  {outputTab === 'output' && <div className="ide-stream"><span>Standard output</span><pre>{runResult.stdout || '(no output)'}</pre></div>}
+                  {outputTab === 'errors' && (runResult.stderr ? <div className="ide-stream ide-stderr"><span>Error output</span><pre>{runResult.stderr}</pre></div> : <p className="ide-output-empty">No errors in this run.</p>)}
+                </div>
               </> : <p className="ide-output-empty">Your program’s output will appear here.</p>}
             </section>
             {submitError && <p className="ide-submit-error" role="alert">{submitError}</p>}

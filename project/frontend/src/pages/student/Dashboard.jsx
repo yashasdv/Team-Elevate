@@ -4,6 +4,7 @@ import { getStudentDashboardData } from '../../services/studentDashboard.js'
 import StreakCard from '../../components/student/StreakCard.jsx'
 import DailyGoalCard from '../../components/student/DailyGoalCard.jsx'
 import DailyPracticeCard from '../../components/student/DailyPracticeCard.jsx'
+import ClassJoinCard from '../../components/student/ClassJoinCard.jsx'
 import StudentPageHeader from '../../components/student/StudentPageHeader.jsx'
 
 function getGreeting() {
@@ -90,6 +91,7 @@ export default function Dashboard() {
             <aside className="dashboard-sidebar dashboard-sidebar-redesigned" aria-label="Your learning topics">
               <TopicCard title="Topics you’re growing in" topics={dashboard?.weakTopics || []} kind="weak" />
               <TopicCard title="Your strengths" topics={dashboard?.strongTopics || []} kind="strong" />
+              <ClassJoinCard user={user} demo={isDemoUser} onJoined={loadDashboard} />
             </aside>
           </div>
         </div>

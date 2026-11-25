@@ -133,6 +133,12 @@ a { color: inherit; text-decoration: none; }
 .ide-console-card { min-height: 145px; padding: 13px 15px; }
 .ide-console-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #c6cedb; font-size: 11px; font-weight: 600; }
 .ide-console-heading > span:last-child { color: #7e899a; font-size: 10px; font-weight: 400; }
+.ide-console-tabs { display: flex; gap: 5px; margin-top: 10px; border-bottom: 1px solid var(--line); }
+.ide-console-tabs button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border: 0; border-bottom: 2px solid transparent; color: #8792a3; background: transparent; font-size: 10px; cursor: pointer; }
+.ide-console-tabs button:hover { color: #cbd4e2; }
+.ide-console-tabs button.active { border-bottom-color: #9a79f7; color: #e4ddf8; }
+.ide-console-tabs button span { padding: 2px 5px; border-radius: 999px; color: #a9c5ff; background: rgba(79,142,247,.12); font-size: 8px; }
+.ide-console-tab-panel { min-height: 86px; }
 .ide-output-empty { margin: 22px 0 10px; color: #707b8d; font-size: 11px; }
 .ide-demo-output-note { margin: 12px 0 0; color: #c0aaf5; font-size: 10px; line-height: 1.5; }
 .ide-stream { margin-top: 12px; }
@@ -439,6 +445,17 @@ body:has(.student-app-layout) {
 .dashboard-topic-card li strong { color: #4a556f; font-size: 9px; }
 .dashboard-topic-card li span { color: #9099aa; font-size: 8px; }
 .dashboard-topic-empty { margin: 9px 0 0; color: #8d97aa; font-size: 9px; line-height: 1.5; }
+.dashboard-sidebar-redesigned .join-class-card { padding: 15px; border-color: #e8e9f5; background: linear-gradient(145deg,#fff,#f8f7ff); box-shadow: 0 8px 22px rgba(48,64,103,.045); }
+.dashboard-sidebar-redesigned .join-card-icon { border-color: #e5e0fa; color: #7861c9; background: #f3f0ff; }
+.dashboard-sidebar-redesigned .join-card-heading h2 { color: #3e4862; font-size: 12px; font-weight: 800; }
+.dashboard-sidebar-redesigned .join-card-heading .dashboard-section-kicker { color: #8273b8; font-size: 8px; }
+.dashboard-sidebar-redesigned .join-card-description { color: #858fa3; font-size: 9px; line-height: 1.5; }
+.dashboard-sidebar-redesigned .join-class-form input { min-height: 37px; border-color: #e4e8f1; color: #414c67; background: #fff; }
+.dashboard-sidebar-redesigned .join-class-form input::placeholder { color: #a0a9b9; }
+.dashboard-sidebar-redesigned .join-class-form .button { min-height: 36px; }
+.dashboard-sidebar-redesigned .join-message-success { color: #247558; }
+.dashboard-sidebar-redesigned .join-message-info { color: #5d6db5; }
+.dashboard-sidebar-redesigned .join-message-error { color: #a04e5b; }
 .dashboard-load-error { border: 1px solid #f0cfd4; border-radius: 12px; color: #9b4b5c; background: #fff6f7; }
 .dashboard-load-error p { color: inherit; }
 .dashboard-footer { border-color: #e7eaf2; color: #99a1b1; }
